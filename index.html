@@ -1,44 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Charbel's Sample Website</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 50px;
-        }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: inline-block;
-        }
-        h1 {
-            color: #2c3e50;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #3498db;
-            border: none;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-    </style>
+  <title>Charbel Portfolio</title>
 </head>
 <body>
 
-<div class="card">
-    <h1>Welcome to My Website 🚀</h1>
-    <p>This is my first published website.</p>
-    <button onclick="alert('Website is working!')">Click Me</button>
+<h1>My Portfolio</h1>
+
+<div id="auth">
+  <h3>Register / Login</h3>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
 </div>
+
+<div id="dashboard" style="display:none;">
+  <h3>Welcome</h3>
+  <textarea id="comment" placeholder="Write something..."></textarea>
+  <button onclick="saveComment()">Save Comment</button>
+  <button onclick="logout()">Logout</button>
+
+  <h4>Your Comments:</h4>
+  <ul id="commentsList"></ul>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, addDoc, query, where, getDocs } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    // 🔥 PASTE YOUR FIREBASE CONFIG HERE
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getFirestore();
+
+  window.register = async function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await createUserWithEmailAndPassword(auth, email, password);
+  }
+
+  window.login = async function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    await signInWithEmailAndPassword(auth, email, password);
+  }
+
+  window.logout = async function() {
+    await signOut(auth);
+  }
+
+  window.saveComment = async function() {
+    const comment = document.getElementById("comment").value;
+    await addDoc(collection(db, "comments"), {
+      text: comment,
+      user: auth.currentUser.uid
+    });
+    loadComments();
+  }
+
+  async function loadComments() {
+    const q = query(collection(db, "comments"), where("user", "==", auth.currentUser.uid));
+    const querySnapshot = await getDocs(q);
+
+    const list = document.getElementById("commentsList");
+    list.innerHTML = "";
+
+    querySnapshot.forEach((doc) => {
+      const li = document.createElement("li");
+      li.textContent = doc.data().text;
+      list.appendChild(li);
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      loadComments();
+    } else {
+      document.getElementById("auth").style.display = "block";
+      document.getElementById("dashboard").style.display = "none";
+    }
+  });
+
+</script>
 
 </body>
 </html>
