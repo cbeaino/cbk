@@ -32,9 +32,16 @@
   import { getFirestore, collection, addDoc, query, where, getDocs } 
   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    // 🔥 PASTE YOUR FIREBASE CONFIG HERE
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDLBu4kGkOvnXgIav0RmH63bQt94cgsR_8",
+  authDomain: "cbeaino.firebaseapp.com",
+  projectId: "cbeaino",
+  storageBucket: "cbeaino.firebasestorage.app",
+  messagingSenderId: "238731920093",
+  appId: "1:238731920093:web:379e6b9639a9700cc5d134",
+  measurementId: "G-GFDWW273VS"
+};
+
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
